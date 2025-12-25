@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>S Index</title>
+</head>
+<body>
+
+<button onclick="loadRSS()">BSE-Corp Action</button>
+
+<button onclick="loadRSSAnnouncements()">BSE-Announcements</button>
+<pre id="output"></pre>
+<pre id="outputloadRSSAnnouncements"></pre>
+
+
+
+<script>
+
+  async function loadRSSAnnouncements() {
+    const rssUrl = "https://www.bseindia.com/data/xml/announcements.xml";
+    const proxyUrl =
+      "https://api.allorigins.win/raw?url=" + encodeURIComponent(rssUrl);
+  
+    // ✅ Official-name keywords (BSE-safe)
+    const watchlist = [
+    "SAMVARDHANA MOTHERSON INTERNATIONAL",
+    "TATA STEEL LTD",
+    "ASHOK LEYLAND LTD",
+    "ADANI POWER LTD",
+    "ORIENT GREEN POWER COMPANY LTD",
+    "BHARAT PETROLEUM CORPORATION LTD",
+    "SPANDANA SPHOORTY FINANCIAL LTD",
+    "NBCC",
+    "JAIPRAKASH POWER VENTURES LTD",
+    "SUZLON ENERGY LTD",
+    "SAGILITY LTD",
+    "SBFC FINANCE LTD",
+    "ITC LTD",
+    "WIPRO LTD",
+    "IDFC FIRST BANK LTD",
+    "INDIAN BANK",
+    "YES BANK LTD",
+    "FEDERAL BANK LTD",
+    "CANARA BANK LTD",
+    "RBL BANK LTD",
+    "PUNJAB NATIONAL BANK",
+    "SOUTH INDIAN BANK LTD",
+    "EQUITAS SMALL FINANCE BANK LTD",
+    "IDBI BANK LTD",
+    "KARUR VYSYA BANK LTD",
+    "DCB BANK LTD",
+    "UJJIVAN SMALL FINANCE BANK LTD",
+    "BANK OF BARODA LTD",
+    "JAMMU AND KASHMIR BANK LTD",
+    "KARNATAKA BANK LTD",
+    "TATA CONSULTANCY",
+    "ITC",
+    "AU SMALL FINANCE",
+    "MUTHOOT FINCORP"
+    ];
+  
+    const res = await fetch(proxyUrl);
+    const text = await res.text();
+  
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(text, "text/xml");
+    const items = xml.querySelectorAll("item");
+  
+    let result = "";
+    let count = 0;
+  
+    items.forEach(item => {
+      const title = item.querySelector("title")?.textContent || "";
+      let desc = item.querySelector("description")?.textContent || "";
+  
+      const titleUpper = title.toUpperCase();
+  
+      // ✅ Match by company name
+      if (watchlist.some(name => titleUpper.includes(name))) {
+        count++;
+        // 🧹 Clean unwanted fields
+        desc = desc
+          .replace(/\|\s*RD Date\s*:[^|]*/gi, "")
+          .replace(/\|\s*BC START DATE\s*:[^|]*/gi, "")
+          .replace(/\|\s*BC END DATE\s*:[^|]*/gi, "")
+          .replace(/\|\s*ND START DATE\s*:[^|]*/gi, "")
+          .replace(/\|\s*ND END DATE\s*:[^|]*/gi, "")
+          .replace(/\|\s*Actual Payment Date\s*:[^|]*/gi, "")
+          .trim();
+  
+          result +=
+          count + ". 📌 " + title + "\n" +
+          desc + "\n" +
+          "----------------------------------------------------------------\n\n";
+      }
+    });
+  
+    document.getElementById("outputloadRSSAnnouncements").textContent =
+      result || "No watchlist updates.";
+  }
+  
+  </script>
+<script>
+
+async function loadRSS() {
+  const rssUrl = "https://www.bseindia.com/data/XML/CorpActionFeed.xml";
+  const proxyUrl =
+    "https://api.allorigins.win/raw?url=" + encodeURIComponent(rssUrl);
+
+  // ✅ Official-name keywords (BSE-safe)
+  const watchlist = [
+    "MOTHERSON", //SAMVARDHANA MOTHERSON INTERNATIONAL
+    "TATA STEEL",
+    "ASHOK LEYLAND",
+    "ADANI POWER",
+    "ORIENT GREEN POWER COMPANY",
+    "BHARAT PETROLEUM CORPORATION",
+    "SPANDANA SPHOORTY FINANCIAL",
+    "NBCC",
+    "JAIPRAKASH POWER VENTURES",
+    "SUZLON ENERGY",
+    "SAGILITY",
+    "SBFC FINANCE",
+    "ITC",
+    "WIPRO",
+    "INDIAN OIL CORPORATION",
+    "IDFC FIRST BANK", // Banking
+    "INDIAN BANK",
+    "YES BANK",
+    "FEDERAL BANK",
+    "CANARA BANK",
+    "RBL BANK",
+    "PUNJAB NATIONAL BANK",
+    "SOUTH INDIAN BANK",
+    "EQUITAS SMALL FINANCE BANK",
+    "IDBI BANK",
+    "KARUR VYSYA BANK",
+    "DCB BANK",
+    "UJJIVAN SMALL FINANCE BANK",
+    "BANK OF BARODA",
+    "JAMMU AND KASHMIR BANK",
+    "KARNATAKA BANK",
+    "MUTHOOT FINCORP"
+  ];
+
+  const res = await fetch(proxyUrl);
+  const text = await res.text();
+
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(text, "text/xml");
+  const items = xml.querySelectorAll("item");
+
+  let result = "";
+  let count = 0;
+
+  items.forEach(item => {
+    const title = item.querySelector("title")?.textContent || "";
+    let desc = item.querySelector("description")?.textContent || "";
+
+    const titleUpper = title.toUpperCase();
+
+    // ✅ Match by company name
+    if (watchlist.some(name => titleUpper.includes(name))) {
+      count++;
+      // 🧹 Clean unwanted fields
+      desc = desc
+        .replace(/\|\s*RD Date\s*:[^|]*/gi, "")
+        .replace(/\|\s*BC START DATE\s*:[^|]*/gi, "")
+        .replace(/\|\s*BC END DATE\s*:[^|]*/gi, "")
+        .replace(/\|\s*ND START DATE\s*:[^|]*/gi, "")
+        .replace(/\|\s*ND END DATE\s*:[^|]*/gi, "")
+        .replace(/\|\s*Actual Payment Date\s*:[^|]*/gi, "")
+        .trim();
+
+        result +=
+        count + ". 📌 " + title + "\n" +
+        desc + "\n" +
+        "----------------------------------------------------------------\n\n";
+
+       
+
+    }
+  });
+
+  document.getElementById("output").textContent =
+    result || "No watchlist updates.";
+}
+
+// async function loadRSS() {
+//   const rssUrl = "https://www.bseindia.com/data/XML/CorpActionFeed.xml";
+//   const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(rssUrl);
+
+//   const watchlist = ["MUTHOOT FINCORP Ltd", "AU Small Finance Bank Ltd"]; // ITC, Ashok Leyland
+
+//   const res = await fetch(proxyUrl);
+//   const text = await res.text();
+
+//   const parser = new DOMParser();
+//   const xml = parser.parseFromString(text, "text/xml");
+
+//   const items = xml.querySelectorAll("item");
+//   let result = "";
+
+//   items.forEach(item => {
+//     const title = item.querySelector("title")?.textContent || "";
+//     const desc = item.querySelector("description")?.textContent || "";
+//     const time = item.querySelector("pubDate")?.textContent || "";
+
+//     // match any stock in watchlist
+//     if (watchlist.some(code => title.includes(`(${code})`))) {
+//       result += `📌 ${title}\n${desc}\n🕒 ${time}\n\n`;
+//     }
+//   });
+
+//   document.getElementById("output").textContent =
+//     result || "No watchlist updates.";
+// }
+
+
+
+
+// async function loadRSS() {
+//   const proxy = "https://api.allorigins.win/raw?url=";
+//   const rssUrl = "https://www.bseindia.com/data/XML/CorpActionFeed.xml";
+
+//   try {
+//     const response = await fetch(proxy + encodeURIComponent(rssUrl));
+//     const text = await response.text();
+
+//     const parser = new DOMParser();
+//     const xml = parser.parseFromString(text, "text/xml");
+
+//     const items = xml.querySelectorAll("item");
+//     let result = "";
+
+//     items.forEach(item => {
+//       const title = item.querySelector("title")?.textContent;
+//       const desc = item.querySelector("description")?.textContent;
+//      // const time = item.querySelector("pubDate")?.textContent;
+
+//       // example watchlist filter
+//       if (title && title.includes("975440")) {
+//         result += `📌 ${title}\n${desc}\n\n`;
+//       }
+//     });
+
+//     document.getElementById("output").textContent =
+//       result || "No watchlist updates found";
+
+//   } catch (err) {
+//     console.error(err);
+//     alert("Failed to load RSS");
+//   }
+// }
+
+
+</script>
+</body>
+</html>
