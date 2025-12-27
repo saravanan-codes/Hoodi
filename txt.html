@@ -2,22 +2,53 @@
 <html>
 <head>
   <title>S Index</title>
+
+  <style>
+  button.clicked {
+    background-color: green;
+    color: white;
+    padding: 6px;
+    border: 1px solid #00280e;
+    border-radius: 3px;
+}
+
+button.clicked::after {
+    content: " ▼";
+}
+button{
+  padding: 6px;
+    border: 1px solid #80b893;
+    border-radius: 3px;
+    border: 1px solid #d1d1d1;
+}
+
+    </style>
 </head>
 <body>
 
-<button onclick="loadRSS()">BSE-Corp Action</button>
-<button onclick="loadRSSAnnouncements()">BSE-Announcements</button>
+  <button onclick="this.classList.toggle('clicked'); loadRSS();">BSE-Corp Action</button>
+<!-- 
+<button onclick="loadRSS()">BSE-Corp Action</button> -->
+<button onclick="this.classList.toggle('clicked'); loadRSSAnnouncements()">BSE-Announcements</button>
+<button onclick="this.classList.toggle('clicked'); loadRSSAnnouncementsALL()">BSE-Announcements-ALL</button>
+<button onclick="this.classList.toggle('clicked'); loadRSSActionALL()">BSE-Corp Action-ALL</button>
+
+
+
 <!-- <button onclick="NSECorp()">NSE-Corp Action</button> -->
 
 <pre id="output"></pre>
 <pre id="outputloadRSSAnnouncements"></pre>
+<pre id="outputloadRSSAnnouncementsALL"></pre>
+<pre id="outputActionsALL"></pre>
+<pre id="status"></pre>
 <!-- <pre id="NSECorpRe"></pre> -->
 
 
 <!-- BSE Start -->
 <script>
 
-  async function loadRSSAnnouncements() {
+  async function loadRSSAnnouncements(btn) {
     const rssUrl = "https://www.bseindia.com/data/xml/announcements.xml";
     const proxyUrl =
       "https://api.allorigins.win/raw?url=" + encodeURIComponent(rssUrl);
@@ -185,78 +216,122 @@ async function loadRSS() {
     result || "No watchlist updates.";
 }
 
-// async function loadRSS() {
-//   const rssUrl = "https://www.bseindia.com/data/XML/CorpActionFeed.xml";
-//   const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(rssUrl);
-
-//   const watchlist = ["MUTHOOT FINCORP Ltd", "AU Small Finance Bank Ltd"]; // ITC, Ashok Leyland
-
-//   const res = await fetch(proxyUrl);
-//   const text = await res.text();
-
-//   const parser = new DOMParser();
-//   const xml = parser.parseFromString(text, "text/xml");
-
-//   const items = xml.querySelectorAll("item");
-//   let result = "";
-
-//   items.forEach(item => {
-//     const title = item.querySelector("title")?.textContent || "";
-//     const desc = item.querySelector("description")?.textContent || "";
-//     const time = item.querySelector("pubDate")?.textContent || "";
-
-//     // match any stock in watchlist
-//     if (watchlist.some(code => title.includes(`(${code})`))) {
-//       result += `📌 ${title}\n${desc}\n🕒 ${time}\n\n`;
-//     }
-//   });
-
-//   document.getElementById("output").textContent =
-//     result || "No watchlist updates.";
-// }
-
-
-
-
-// async function loadRSS() {
-//   const proxy = "https://api.allorigins.win/raw?url=";
-//   const rssUrl = "https://www.bseindia.com/data/XML/CorpActionFeed.xml";
-
-//   try {
-//     const response = await fetch(proxy + encodeURIComponent(rssUrl));
-//     const text = await response.text();
-
-//     const parser = new DOMParser();
-//     const xml = parser.parseFromString(text, "text/xml");
-
-//     const items = xml.querySelectorAll("item");
-//     let result = "";
-
-//     items.forEach(item => {
-//       const title = item.querySelector("title")?.textContent;
-//       const desc = item.querySelector("description")?.textContent;
-//      // const time = item.querySelector("pubDate")?.textContent;
-
-//       // example watchlist filter
-//       if (title && title.includes("975440")) {
-//         result += `📌 ${title}\n${desc}\n\n`;
-//       }
-//     });
-
-//     document.getElementById("output").textContent =
-//       result || "No watchlist updates found";
-
-//   } catch (err) {
-//     console.error(err);
-//     alert("Failed to load RSS");
-//   }
-// }
 
 
 </script>
+
+
+<script>
+  async function loadRSSAnnouncementsALL() {
+    const rssUrl = "https://www.bseindia.com/data/xml/announcements.xml";
+    const proxyUrl =
+      "https://api.allorigins.win/raw?url=" + encodeURIComponent(rssUrl);
+  
+    const res = await fetch(proxyUrl);
+    const text = await res.text();
+  
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(text, "text/xml");
+    const items = xml.querySelectorAll("item");
+  
+    let result = "";
+    let count = 0;
+  
+    items.forEach(item => {
+      const title = item.querySelector("title")?.textContent || "";
+      let desc = item.querySelector("description")?.textContent || "";
+      const time = item.querySelector("pubDate")?.textContent || "";
+  
+      // 🧹 Clean unwanted fields
+      desc = desc
+        .replace(/\|\s*RD Date\s*:[^|]*/gi, "")
+        .replace(/\|\s*BC START DATE\s*:[^|]*/gi, "")
+        .replace(/\|\s*BC END DATE\s*:[^|]*/gi, "")
+        .replace(/\|\s*ND START DATE\s*:[^|]*/gi, "")
+        .replace(/\|\s*ND END DATE\s*:[^|]*/gi, "")
+        .replace(/\|\s*Actual Payment Date\s*:[^|]*/gi, "")
+        .trim();
+  
+      count++;
+  
+      result +=
+        count + ". 📌 " + title + "\n" +
+        desc + "\n" +
+        (time ? "🕒 " + time + "\n" : "") +
+        "----------------------------------------------------------------\n\n";
+    });
+  
+    document.getElementById("outputloadRSSAnnouncementsALL").textContent =
+      result || "No announcements available.";
+  }
+  </script>
+  
+
+  <script>
+    async function loadRSSActionALL() {
+      const rssUrl = "https://www.bseindia.com/data/XML/CorpActionFeed.xml";
+      const proxyUrl =
+        "https://api.allorigins.win/raw?url=" + encodeURIComponent(rssUrl);
+    
+       
+
+      let statusUpdate = "Starting fetch...\n";
+      document.getElementById("status").textContent = statusUpdate;
+
+      statusUpdate += "Calling fetch API...\n";
+      const res = await fetch(proxyUrl);
+      
+      statusUpdate += "Response received\n";
+      statusUpdate += "HTTP Status: " + res.status + "\n";
+      if (res.ok) {
+      statusUpdate += "Fetch successful ✅\n";
+     } else {
+      statusUpdate += "Fetch failed ❌\n";
+    }
+
+      const text = await res.text();
+      statusUpdate += "RSS text loaded\n";
+    
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(text, "text/xml");
+      const items = xml.querySelectorAll("item");
+    
+      statusUpdate = "Loop Started";
+
+
+      let result = "";
+      let count = 0;
+    
+      items.forEach(item => {
+        const title = item.querySelector("title")?.textContent || "";
+        let desc = item.querySelector("description")?.textContent || "";
+        const time = item.querySelector("pubDate")?.textContent || "";
+    
+        // 🧹 Clean unwanted fields
+        desc = desc
+          .replace(/\|\s*RD Date\s*:[^|]*/gi, "")
+          .replace(/\|\s*BC START DATE\s*:[^|]*/gi, "")
+          .replace(/\|\s*BC END DATE\s*:[^|]*/gi, "")
+          .replace(/\|\s*ND START DATE\s*:[^|]*/gi, "")
+          .replace(/\|\s*ND END DATE\s*:[^|]*/gi, "")
+          .replace(/\|\s*Actual Payment Date\s*:[^|]*/gi, "")
+          .trim();
+    
+        count++;
+    
+        result +=
+          count + ". 📌 " + title + "\n" +
+          desc + "\n" +
+          (time ? "🕒 " + time + "\n" : "") +
+          "----------------------------------------------------------------\n\n";
+      });
+     
+
+      document.getElementById("outputActionsALL").textContent =
+        result || "No announcements available.";
+    }
+    </script>
 <!-- BSE End -->
-
-
 
 
 
